@@ -1,5 +1,6 @@
 package org.liberty.gchb.domain.service;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -65,9 +66,14 @@ public class CommitService {
             e -> {
               LocalDateTime commitDateTime = getCommitDateTime(date, diffInMin);
               String commitMessage = getCommitMessage();
-              return new Commit(commitDateTime, commitMessage);
+              String commitFilePath = getCommitFilePath();
+              return new Commit(commitFilePath, commitDateTime, commitMessage);
             })
         .toList();
+  }
+
+  private String getCommitFilePath() {
+    return String.format("%s%c%s.txt", config.getPath(), File.separatorChar, UUID.randomUUID());
   }
 
   private String getCommitMessage() {

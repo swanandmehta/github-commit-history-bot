@@ -25,5 +25,11 @@ public class HistoryService {
 
   public void createCommitHistory() {
     List<Commit> commitList = commitService.getCommitList();
+    commitList.forEach(
+        commit -> {
+          fsClient.createFile(commit);
+          fsClient.write(commit);
+          commitClient.createCommit(commit);
+        });
   }
 }
