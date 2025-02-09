@@ -8,19 +8,25 @@ import org.liberty.gchb.domain.model.Config;
 
 public class PropertiesConfigClient implements ConfigClient {
 
-  private Config config;
+  private static Config config;
 
   @Override
-  public void loadConfig() {}
-
-  @Override
-  public Config getConfig() {
+  public void loadConfig() {
     try {
       Properties properties = new Properties();
       properties.load(getClass().getResourceAsStream("/app.config"));
-      return new Config(properties);
+      PropertiesConfigClient.config = new Config(properties);
     } catch (IOException e) {
       throw new ConfigClientException(e);
     }
+  }
+
+  @Override
+  public Config getConfig() {
+    if (PropertiesConfigClient.config == null) {
+      this.loadConfig();
+    }
+
+    return PropertiesConfigClient.config;
   }
 }
