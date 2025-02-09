@@ -9,21 +9,17 @@ import org.liberty.gchb.infrastructure.adapter.cli.GitCommitClient;
 import org.liberty.gchb.infrastructure.adapter.cli.LocalFileSystemClient;
 import org.liberty.gchb.infrastructure.adapter.cli.PropertiesConfigClient;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-
 public class Main {
 
-    public static void main(String[] arg) {
-        ConfigClient configClient = new PropertiesConfigClient();
-        FileSystemClient fileSystemClient = new LocalFileSystemClient();
-        CommitClient commitClient = new GitCommitClient();
+  public static void main(String[] arg) {
+    ConfigClient configClient = new PropertiesConfigClient();
+    FileSystemClient fileSystemClient = new LocalFileSystemClient();
+    CommitClient commitClient = new GitCommitClient();
 
-        ConfigService configService = new ConfigService(configClient);
-        HistoryService historyService = new HistoryService(configService, fileSystemClient, commitClient);
+    ConfigService configService = new ConfigService(configClient);
+    HistoryService historyService =
+        new HistoryService(configService, fileSystemClient, commitClient);
 
-        historyService.createCommitHistory();
-
-    }
+    historyService.createCommitHistory();
+  }
 }
