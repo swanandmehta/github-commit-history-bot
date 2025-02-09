@@ -1,11 +1,11 @@
 package org.liberty.gchb.domain.model;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 import lombok.Getter;
+import org.liberty.gchb.application.exception.ConfigClientException;
 
 @Getter
 public class Config {
@@ -28,10 +28,8 @@ public class Config {
     this.startDate = getValue(properties, "org.liberty.gchb.start-date", today);
     this.endDate = getValue(properties, "org.liberty.gchb.end-date", today);
 
-    this.startTime =
-        getValue(properties, "org.liberty.gchb.start-time", LocalTime.MIN);
-    this.endTime =
-        getValue(properties, "org.liberty.gchb.end-time", LocalTime.MAX);
+    this.startTime = getValue(properties, "org.liberty.gchb.start-time", LocalTime.MIN);
+    this.endTime = getValue(properties, "org.liberty.gchb.end-time", LocalTime.MAX);
 
     this.isWeekendIncluded = getValue(properties, "org.liberty.gchb.is-weekend-included", true);
     this.isOnlyWeekend = getValue(properties, "org.liberty.gchb.is-only-weekend", false);
@@ -78,5 +76,28 @@ public class Config {
     }
 
     return Integer.parseInt(value);
+  }
+
+  public void validate() {
+    if (path.isEmpty()) {
+      throw new ConfigClientException("Provided path cannot be empty");
+    }
+
+    if (startDate.isAfter(endDate)) {
+      throw new ConfigClientException("End date cannot be after start date");
+    }
+
+    if (startTime.isAfter(endTime)) {
+      throw new ConfigClientException("End time cannot be after start date");
+    }
+
+    if (maxCommitPerDay <= 0) {
+      throw new ConfigClientException("Max commit per day cannot be less then or equal to 0");
+    }
+
+    if (minCommitPerDay > maxCommitPerDay) {
+      throw new ConfigClientException(
+          "Min number of commit cant be more then max number of commits");
+    }
   }
 }

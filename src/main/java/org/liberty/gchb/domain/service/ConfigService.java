@@ -12,5 +12,6 @@ public class ConfigService {
   public ConfigService(ConfigClient configClient) {
     this.configClient = configClient;
     this.config = this.configClient.getConfig();
+    this.config.validate();
   }
 }
