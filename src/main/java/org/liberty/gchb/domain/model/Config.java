@@ -13,8 +13,8 @@ public class Config {
   private final String path;
   private final LocalDate startDate;
   private final LocalDate endDate;
-  private final LocalDateTime startTime;
-  private final LocalDateTime endTime;
+  private final LocalTime startTime;
+  private final LocalTime endTime;
   private final Boolean isWeekendIncluded;
   private final Boolean isOnlyWeekend;
   private final Integer minCommitPerDay;
@@ -29,9 +29,9 @@ public class Config {
     this.endDate = getValue(properties, "org.liberty.gchb.end-date", today);
 
     this.startTime =
-        getValue(properties, "org.liberty.gchb.start-time", LocalDateTime.of(today, LocalTime.MIN));
+        getValue(properties, "org.liberty.gchb.start-time", LocalTime.MIN);
     this.endTime =
-        getValue(properties, "org.liberty.gchb.end-time", LocalDateTime.of(today, LocalTime.MAX));
+        getValue(properties, "org.liberty.gchb.end-time", LocalTime.MAX);
 
     this.isWeekendIncluded = getValue(properties, "org.liberty.gchb.is-weekend-included", true);
     this.isOnlyWeekend = getValue(properties, "org.liberty.gchb.is-only-weekend", false);
@@ -50,14 +50,14 @@ public class Config {
     return LocalDate.parse(value, DateTimeFormatter.ISO_LOCAL_DATE);
   }
 
-  private LocalDateTime getValue(Properties properties, String key, LocalDateTime defaultValue) {
+  private LocalTime getValue(Properties properties, String key, LocalTime defaultValue) {
     String value = properties.getProperty(key, "");
 
     if (value.isBlank()) {
       return defaultValue;
     }
 
-    return LocalDateTime.parse(value, DateTimeFormatter.ISO_LOCAL_DATE);
+    return LocalTime.parse(value, DateTimeFormatter.ISO_TIME);
   }
 
   private boolean getValue(Properties properties, String key, boolean defaultValue) {
