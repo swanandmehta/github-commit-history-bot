@@ -7,6 +7,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import org.liberty.gchb.domain.model.Commit;
@@ -63,9 +64,19 @@ public class CommitService {
         .mapToObj(
             e -> {
               LocalDateTime commitDateTime = getCommitDateTime(date, diffInMin);
-              return new Commit(commitDateTime);
+              String commitMessage = getCommitMessage();
+              return new Commit(commitDateTime, commitMessage);
             })
         .toList();
+  }
+
+  private String getCommitMessage() {
+    List<String> commitMessages = config.getCommitMessages();
+    if (commitMessages.isEmpty()) {
+      return String.format("Commit ID : %s", UUID.randomUUID());
+    } else {
+      return commitMessages.get(random.nextInt(commitMessages.size()));
+    }
   }
 
   private LocalDateTime getCommitDateTime(LocalDate date, long diffInMin) {

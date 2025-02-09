@@ -3,6 +3,8 @@ package org.liberty.gchb.domain.model;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import lombok.Getter;
 import org.liberty.gchb.application.exception.ConfigClientException;
@@ -19,6 +21,7 @@ public class Config {
   private final Boolean isOnlyWeekend;
   private final Integer minCommitPerDay;
   private final Integer maxCommitPerDay;
+  private final List<String> commitMessages;
 
   public Config(Properties properties) {
     LocalDate today = LocalDate.now();
@@ -36,6 +39,12 @@ public class Config {
 
     this.minCommitPerDay = getValue(properties, "org.liberty.gchb.min-commit-per-day", 1);
     this.maxCommitPerDay = getValue(properties, "org.liberty.gchb.max-commit-per-day", 5);
+
+    this.commitMessages =
+        Arrays.stream(properties.getProperty("org.liberty.gchb.messages", "").split("\\|"))
+            .map(String::trim)
+            .filter(e -> !e.isEmpty())
+            .toList();
   }
 
   private LocalDate getValue(Properties properties, String key, LocalDate defaultValue) {
