@@ -17,11 +17,10 @@ public class Config {
   private final LocalDate endDate;
   private final LocalTime startTime;
   private final LocalTime endTime;
-  private final Boolean isWeekendIncluded;
-  private final Boolean isOnlyWeekend;
   private final Integer minCommitPerDay;
   private final Integer maxCommitPerDay;
   private final List<String> commitMessages;
+  private final CommitType commitType;
 
   public Config(Properties properties) {
     LocalDate today = LocalDate.now();
@@ -34,8 +33,7 @@ public class Config {
     this.startTime = getValue(properties, "org.liberty.gchb.start-time", LocalTime.MIN);
     this.endTime = getValue(properties, "org.liberty.gchb.end-time", LocalTime.MAX);
 
-    this.isWeekendIncluded = getValue(properties, "org.liberty.gchb.is-weekend-included", true);
-    this.isOnlyWeekend = getValue(properties, "org.liberty.gchb.is-only-weekend", false);
+    this.commitType = getValue(properties);
 
     this.minCommitPerDay = getValue(properties, "org.liberty.gchb.min-commit-per-day", 1);
     this.maxCommitPerDay = getValue(properties, "org.liberty.gchb.max-commit-per-day", 5);
@@ -67,14 +65,14 @@ public class Config {
     return LocalTime.parse(value, DateTimeFormatter.ISO_TIME);
   }
 
-  private boolean getValue(Properties properties, String key, boolean defaultValue) {
-    String value = properties.getProperty(key, "");
+  private CommitType getValue(Properties properties) {
+    String value = properties.getProperty("org.liberty.gchb.commit-type", "");
 
     if (value.isBlank()) {
-      return defaultValue;
+      return CommitType.EVERYDAY;
     }
 
-    return Boolean.parseBoolean(value);
+    return CommitType.valueOf(value);
   }
 
   private int getValue(Properties properties, String key, int defaultValue) {

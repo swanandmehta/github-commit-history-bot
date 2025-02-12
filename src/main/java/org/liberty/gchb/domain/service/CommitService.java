@@ -1,6 +1,7 @@
 package org.liberty.gchb.domain.service;
 
 import java.io.File;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -28,14 +29,41 @@ public class CommitService {
     long totalAvailableMinutes = calculateAvailableMinutes();
 
     return LongStream.range(0L, totalDaysToProcess)
-        .mapToObj(
-            i -> {
-              LocalDate date = config.getStartDate().plusDays(i);
-              return getCommitListByDay(date, totalAvailableMinutes);
-            })
+        .mapToObj(i -> getCommitHistoryByDay(i, totalAvailableMinutes))
+        .filter(e -> !e.isEmpty())
         .flatMap(List::stream)
         .sorted(Comparator.comparing(Commit::time))
         .toList();
+  }
+
+  private List<Commit> getCommitHistoryByDay(long i, long totalAvailableMinutes) {
+    LocalDate date = config.getStartDate().plusDays(i);
+    boolean isWeekend = isWeekend(date);
+
+    switch (config.getCommitType()) {
+      case EVERYDAY -> {
+        return getCommitListByDay(date, totalAvailableMinutes);
+      }
+      case ONLY_WEEKEND -> {
+        if (isWeekend) {
+          return getCommitListByDay(date, totalAvailableMinutes);
+        }
+        return List.of();
+      }
+      case ONLY_WORKDAY -> {
+        if (!isWeekend) {
+          return getCommitListByDay(date, totalAvailableMinutes);
+        }
+        return List.of();
+      }
+      default -> {
+        return List.of();
+      }
+    }
+  }
+
+  private boolean isWeekend(LocalDate date) {
+    return date.getDayOfWeek() == DayOfWeek.SUNDAY || date.getDayOfWeek() == DayOfWeek.SATURDAY;
   }
 
   private int calculateCommitsForDay() {
@@ -56,7 +84,7 @@ public class CommitService {
     if (startDate.isEqual(endDate)) {
       return 1;
     }
-    return ChronoUnit.DAYS.between(startDate, endDate);
+    return ChronoUnit.DAYS.between(startDate, endDate) + 1L;
   }
 
   private List<Commit> getCommitListByDay(LocalDate date, long diffInMin) {
@@ -64,16 +92,14 @@ public class CommitService {
     return IntStream.range(0, totalNumberOfCommit)
         .mapToObj(
             e -> {
+              String fileName = String.format("%s.txt", UUID.randomUUID());
               LocalDateTime commitDateTime = getCommitDateTime(date, diffInMin);
-              String commitMessage = getCommitMessage();
-              String commitFilePath = getCommitFilePath();
-              return new Commit(commitFilePath, commitDateTime, commitMessage);
+              String message = getCommitMessage();
+              String filePath =
+                  String.format("%s%c%s", config.getPath(), File.separatorChar, fileName);
+              return new Commit(fileName, filePath, commitDateTime, message);
             })
         .toList();
-  }
-
-  private String getCommitFilePath() {
-    return String.format("%s%c%s.txt", config.getPath(), File.separatorChar, UUID.randomUUID());
   }
 
   private String getCommitMessage() {

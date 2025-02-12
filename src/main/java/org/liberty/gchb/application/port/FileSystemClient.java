@@ -7,21 +7,7 @@ import org.liberty.gchb.domain.model.Commit;
 
 public interface FileSystemClient {
 
-  default void createFile(Commit commit) {
-    try {
-      File file = new File(commit.filePath());
-      file.createNewFile();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
+  boolean createFile(Commit commit);
 
-  default void write(Commit commit) {
-    File file = new File(commit.filePath());
-    try (FileWriter fw = new FileWriter(file)) {
-      fw.write(commit.message());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
+  boolean write(Commit commit);
 }
